@@ -23,12 +23,12 @@ public class WIS4700 {
         ldaOption.dir = "~/LDA_Test/Model"; 
         ldaOption.modelName = "newdocs"; 
         ldaOption.niters = 100;
+        ldaOption.dfile = "~/LDA_Test/user_tweets_fpl_from_twitter.csv";
         
         Inferencer inferencer = new Inferencer(); 
         inferencer.init(ldaOption);
         
-        ldaOption.dfile = "~/LDA_Test/user_tweets_fpl_from_twitter.csv"; 
-        Model newModel = inferencer.inference();
+       // Model newModel = inferencer.inference();
 		
 	}
     }
