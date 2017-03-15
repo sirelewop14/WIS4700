@@ -19,16 +19,26 @@ public class WIS4700 {
      */
     public static void main(String[] args) {
         LDACmdOption ldaOption = new LDACmdOption(); 
-        ldaOption.inf = true; 
-        ldaOption.dir = "~/LDA_Test/Model"; 
+        ldaOption.est = true; 
+        //ldaOption.inf = true;
+        //ldaOption.alpha = (50 / ldaOption.K);
+        //ldaOption.beta = 0.1;
+        ldaOption.savestep = 100;
+        ldaOption.twords = 20;
+        ldaOption.dir = "/Users/rhys/LDA_Test/Model"; 
         ldaOption.modelName = "newdocs"; 
-        ldaOption.niters = 100;
-        ldaOption.dfile = "~/LDA_Test/user_tweets_fpl_from_twitter.csv";
+        ldaOption.niters = 10;
+        ldaOption.dfile = "/../user_tweets_fpl_from_twitter.csv";
+        
+        Model newModel = new Model();
+        newModel.initNewModel(ldaOption);
+        
+        newModel.saveModel(ldaOption.modelName);
         
         Inferencer inferencer = new Inferencer(); 
-        inferencer.init(ldaOption);
         
-       // Model newModel = inferencer.inference();
+        
+       //Model newModel2 = inferencer.inference();
 		
 	}
     }
