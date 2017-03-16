@@ -11,9 +11,16 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.InetAddress;
 import wis4700.jgibblda.Inferencer;
 import wis4700.jgibblda.LDACmdOption;
 import wis4700.jgibblda.Model;
+
+import org.elasticsearch.*;
+import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.transport.InetSocketTransportAddress;
+
 /**
  *
  * @author rhys
@@ -46,15 +53,19 @@ public class WIS4700 {
             System.out.println(line);
             String stemmed = Stopwords.stemString(line);
             String stopped = Stopwords.removeStemmedStopWords(stemmed);
-            out.write(stopped+"\n", 0, stopped.length());
+            out.write(stopped, 0, stopped.length());
+            out.newLine();
             System.out.println(stopped);
         }
         out.flush();
         out.close();
         in.close();
         
+        TransportClient tc = new PreBuiltTransportClient(Settings.EMPTY)
+        .addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("host1"), 9300))
+        .addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("host2"), 9300));
         
-        
+        tc.
         
        // Model newModel = new Model();
        // newModel.initNewModel(ldaOption);
