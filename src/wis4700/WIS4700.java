@@ -16,6 +16,7 @@ import java.net.InetAddress;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Map;
+import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.transport.TransportClient;
@@ -88,28 +89,31 @@ public class WIS4700 {
                 .get();
         
         SearchResponse resp1 = client.prepareSearch("epl").get();
-        System.out.println("hello world 1");
+        //System.out.println("hello world 1");
         
         
         SearchHits hits = resp1.getHits();
         
+        //SearchHit[] hits2 = hits.getHits();
         
         
-        SearchHit hitArray[] = hits.getHits();
+        SearchHit[] hitArray = hits.getHits();
         
         
-        System.out.println(hitArray.length);
+        //System.out.println(hitArray.length);
         
         
         for (SearchHit hitArray1 : hitArray) {
             Map<String, Object> json = hitArray1.getSource();
             //InternalSearchHit ishit =  hitArray1.getSource();
             //System.out.println(json.size());
-            System.out.println(json.get("hits"));
+            //System.out.println();
+            System.out.println(hitArray1.getSource().get("Username"));
+            System.out.println(hitArray1.getSource().get("Message"));
             
             
-            System.out.println(hitArray1);
-            System.out.println(hitArray1.getInnerHits());
+            //System.out.println(hitArray1);
+            //System.out.println(hitArray1.getInnerHits());
         }
 //        
         // The input stream from the JSON response
