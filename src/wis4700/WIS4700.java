@@ -5,32 +5,17 @@
  */
 package wis4700;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.Map;
-import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
-import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHitField;
 import org.elasticsearch.search.SearchHits;
-import org.elasticsearch.search.internal.InternalSearchHit;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import wis4700.jgibblda.Inferencer;
 import wis4700.jgibblda.LDACmdOption;
@@ -80,41 +65,59 @@ public class WIS4700 {
         Settings settings = Settings.builder().put("cluster.name", "elasticsearch_rhys").build();
         TransportClient client = new PreBuiltTransportClient(settings).addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("127.0.0.1"), 9300));
         
-        SearchResponse response = client.prepareSearch("epl")
-                .setTypes("elps")
-                .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
-                .setQuery(QueryBuilders.termQuery("multi", "test"))
-                .setPostFilter(QueryBuilders.rangeQuery("age").from(12).to(18))
-                .setFrom(0).setSize(60).setExplain(true)
-                .get();
+//        SearchResponse response = client.prepareSearch("epl")
+//                .setTypes("elps")
+//                .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+//                .setQuery(QueryBuilders.termQuery("multi", "test"))
+//                .setPostFilter(QueryBuilders.rangeQuery("age").from(12).to(18))
+//                .setFrom(0).setSize(60).setExplain(true)
+//                .get();
         
         SearchResponse resp1 = client.prepareSearch("epl").get();
-        //System.out.println("hello world 1");
-        
-        
         SearchHits hits = resp1.getHits();
-        
-        //SearchHit[] hits2 = hits.getHits();
-        
-        
         SearchHit[] hitArray = hits.getHits();
+        String[] messages = new String[hitArray.length];
         
-        
-        //System.out.println(hitArray.length);
-        
-        
-        for (SearchHit hitArray1 : hitArray) {
-            Map<String, Object> json = hitArray1.getSource();
+        for (int i = 0; i < hitArray.length; i++) {
+            //Map<String, Object> json = hitArray[i].getSource();
             //InternalSearchHit ishit =  hitArray1.getSource();
             //System.out.println(json.size());
             //System.out.println();
-            System.out.println(hitArray1.getSource().get("Username"));
-            System.out.println(hitArray1.getSource().get("Message"));
-            
+            //System.out.println(hitArray[i].getSource().get("Username"));
+            //System.out.println(hitArray[i].getSource().get("Message"));
+            messages[i] = hitArray[i].getSource().get("Message").toString();
             
             //System.out.println(hitArray1);
             //System.out.println(hitArray1.getInnerHits());
         }
+//        for(int j = 0; j < messages.length; j++){
+//            System.out.println(messages[j]);
+//        }
+        
+        
+        LDACmdOption ldaOption = new LDACmdOption(); 
+        ldaOption.est = true; 
+        //ldaOption.inf = true;
+        ldaOption.alpha = (50 / ldaOption.K);
+        ldaOption.beta = 0.1;
+        ldaOption.savestep = 100;
+        ldaOption.twords = 20;
+        ldaOption.dir = "/Users/rhys/LDA_Test/Model"; 
+        ldaOption.modelName = "newdocs"; 
+        ldaOption.niters = 10;
+        
+        //ldaOption.dfile = "/../user_tweets_fpl_from_twitter.csv";
+        
+        Model newModel = new Model();
+        newModel.initNewModel(ldaOption);
+        
+        newModel.saveModel(ldaOption.modelName);
+        
+        
+        
+        Inferencer inferencer = new Inferencer(); 
+        //inferencer.init(ldaOption);
+        //Model newModel = inferencer.inference(messages);
 //        
         // The input stream from the JSON response
 //        BufferedInputStream buffer = null;
