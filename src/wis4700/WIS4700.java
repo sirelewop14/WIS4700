@@ -85,12 +85,20 @@ public class WIS4700 {
                 .setFrom(0).setSize(60).setExplain(true)
                 .get();
         
-        SearchHits hits = response.getHits();
+        SearchResponse resp1 = client.prepareSearch("epl").get();
+        System.out.println("hello world 1");
+        
+        
+        SearchHits hits = resp1.getHits();
         
         SearchHit hitArray[] = hits.getHits();
         
+        System.out.println(hitArray.length);
+        
         for (int i = 0; i < hitArray.length; i++) {
             System.out.println(hitArray[i]);
+            
+            System.out.println(hitArray[i].getFields());
         }
         
         
