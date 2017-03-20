@@ -12,6 +12,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.Map;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.transport.TransportClient;
@@ -19,6 +20,7 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHitField;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 
@@ -91,14 +93,21 @@ public class WIS4700 {
         
         SearchHits hits = resp1.getHits();
         
+        
+        
         SearchHit hitArray[] = hits.getHits();
+        
         
         System.out.println(hitArray.length);
         
-        for (int i = 0; i < hitArray.length; i++) {
-            System.out.println(hitArray[i]);
+        
+        for (SearchHit hitArray1 : hitArray) {
+            Map<String, Object> json = hitArray1.getSource();
+            Util.getString(json, "");
             
-            System.out.println(hitArray[i].getFields());
+            
+            System.out.println(hitArray1);
+            System.out.println(hitArray1.getInnerHits().get());
         }
         
         
