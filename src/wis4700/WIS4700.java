@@ -5,6 +5,7 @@
  */
 package wis4700;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
@@ -12,6 +13,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.Map;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
@@ -22,25 +25,22 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHitField;
 import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.internal.InternalSearchHit;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import wis4700.jgibblda.Inferencer;
 import wis4700.jgibblda.LDACmdOption;
 import wis4700.jgibblda.Model;
-
 
 /**
  *
  * @author rhys
  */
 public class WIS4700 {
-    
-    
 
-    
-    
-    
     /**
      * @param args the command line arguments
      * @throws java.io.FileNotFoundException
@@ -74,8 +74,8 @@ public class WIS4700 {
 //        out.flush();
 //        out.close();
 //        in.close();
-          
-        
+
+//        
         Settings settings = Settings.builder().put("cluster.name", "elasticsearch_rhys").build();
         TransportClient client = new PreBuiltTransportClient(settings).addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("127.0.0.1"), 9300));
         
@@ -103,14 +103,71 @@ public class WIS4700 {
         
         for (SearchHit hitArray1 : hitArray) {
             Map<String, Object> json = hitArray1.getSource();
-            Util.getString(json, "");
+            //InternalSearchHit ishit =  hitArray1.getSource();
+            //System.out.println(json.size());
+            System.out.println(json.get("hits"));
             
             
             System.out.println(hitArray1);
-            System.out.println(hitArray1.getInnerHits().get());
+            System.out.println(hitArray1.getInnerHits());
         }
-        
-        
-	}
-    }
+//        
+        // The input stream from the JSON response
+//        BufferedInputStream buffer = null;
+//
+//        // URL objects
+//        String url = "";
+//        URL urlObject = null;
+//        URLConnection con = null;
+//        String response = "";
+//
+//        // JSON objects
+//        JSONArray hitsArray = null;
+//        JSONObject hits = null;
+//        JSONObject source = null;
+//        JSONObject json = null;
+//
+//        try {
+//            // get a JSON object from ElasticSearch
+//            url = "http://localhost:9200/epl/_search";
+//
+//            // configure the URL request
+//            urlObject = new URL(url);
+//            con = urlObject.openConnection();
+//            con.setRequestProperty("User-Agent", "Mozilla/5.0");
+//
+//            buffer = new BufferedInputStream(con.getInputStream());
+//
+//            while (buffer.available() > 0) {
+//                response += (char) buffer.read();
+//            }
+//
+//            buffer.close();
+//
+//            // parse the JSON response 		
+//            json = new JSONObject(response);
+//            hits = json.getJSONObject("hits");
+//            hitsArray = hits.getJSONArray("hits");
+//            
+//            int size = hitsArray.length();
+//            
+//            String[] username = new String[size];
+//            String[] message = new String[size];
+//            for (int i = 0; i < hitsArray.length(); i++) {
+//                JSONObject h = hitsArray.getJSONObject(i);
+//                source = h.getJSONObject("_source");
+//                //string object = (source.getString("the string you want to get"));
+//                //System.out.println(source);
+//                username[i] = source.getString("Username");
+//                message[i] = source.getString("Message");
+//                
+//                System.out.println(username[i]);
+//                System.out.println(message[i]);
+//                
+//            }
+//        } catch (Exception e) {
+//            // handle the exception
+//        }
 
+    }
+}
