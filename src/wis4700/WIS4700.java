@@ -52,16 +52,18 @@ public class WIS4700 {
         QueryBuilder qb = termQuery("multi", "test");
 
         SearchResponse scrollResp = client.prepareSearch("epl")
-                .addSort(FieldSortBuilder.DOC_FIELD_NAME, SortOrder.ASC)
+                //.addSort(FieldSortBuilder.DOC_FIELD_NAME, SortOrder.ASC)
                 .setScroll(new TimeValue(60000))
-                .setQuery(qb)
+                //.setQuery(qb)
                 .setSize(1000).get(); //max of 100 hits will be returned for each scroll
                 //Scroll until no hits are returned
+        //System.out.println(scrollResp);
         do {
             for (SearchHit hit : scrollResp.getHits().getHits()) {
                 //Handle the hit...
                 String line = "";
             try{
+                //System.out.println(hit);
                 line = hit.getSource().get("Message").toString();
             } catch (Exception e){
                 System.out.println(e);
@@ -86,12 +88,15 @@ public class WIS4700 {
             String size = Integer.toString(lines.size());
             out.write(size, 0, size.length());
             out.newLine();
+            System.out.println(lines.size());
             for (int i = 0; i < lines.size(); i++) {
                 out.write(lines.get(i), 0, lines.get(i).length());
                 out.newLine();
             }
             out.flush();
         }
+        lines.clear();
+        lines.trimToSize();
         //LDA Create new model with settings
         LDACmdOption ldaOption = new LDACmdOption(); 
         ldaOption.est = true; 
@@ -105,10 +110,10 @@ public class WIS4700 {
         //ldaOption.niters = 10;
         ldaOption.dfile = "../sample_data_stopped.txt";
         
-        Estimator estimator = new Estimator();
-        estimator.init(ldaOption);
-        
-        estimator.estimate();
+//        Estimator estimator = new Estimator();
+//        estimator.init(ldaOption);
+//        
+//        estimator.estimate();
         
         //Model newModel = new Model();
         //newModel.initNewModel(ldaOption);
