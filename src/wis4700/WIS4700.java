@@ -6,7 +6,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.regex.Matcher;
@@ -30,10 +29,9 @@ public class WIS4700 {
      * @throws java.io.FileNotFoundException
      */
     public static void main(String[] args) throws FileNotFoundException, IOException {
-
         Scanner scanner = new Scanner(System.in);
-
         boolean run = true;
+        
         while (run) {
             System.out.println("Please enter the operation to perform: ");
             System.out.println("1: Read in new data ");
@@ -41,12 +39,11 @@ public class WIS4700 {
             System.out.println("3: Inference New Data");
             System.out.println("4: Exit");
             System.out.println();
-
             try {
                 int selection = scanner.nextInt();
                 if (selection == 1) {
                     ArrayList<String> data = readCSV();
-                    stemAndSave(data);
+                    saveMessages(data);
                 } else if (selection == 2) {
                     LDACmdOption options = setLDAOptions();
                     performEstimation(options);
@@ -71,7 +68,6 @@ public class WIS4700 {
         String line = "";
         int badCount = 0;
         try (BufferedReader bread = new BufferedReader(fread)) {
-
             while ((line = bread.readLine()) != null) {
                 String[] splitLine = line.split(splitVal);
                 if (splitLine.length <= 1) {
@@ -94,20 +90,16 @@ public class WIS4700 {
                     String stopped = Stopwords.removeStemmedStopWords(stemmed);
                     messages.add(stopped);
                 }
-
             }
-
         } catch (Exception e) {
             System.out.println(line);
             System.out.println(e);
         }
-
         System.out.println("Total bad lines: " + badCount);
-
         return messages;
     }
 
-    public static void stemAndSave(ArrayList<String> data) throws IOException {
+    public static void saveMessages(ArrayList<String> data) throws IOException {
         FileWriter fout = new FileWriter("/Users/rhys/LDA_Test/sample_data_stopped.txt");
         try (BufferedWriter out = new BufferedWriter(fout)) {
             String size = Integer.toString(data.size());
@@ -144,8 +136,8 @@ public class WIS4700 {
         System.out.println("Do inference for previously unseen (new) data using a previously estimated LDA model");
         Inferencer inferencer = new Inferencer();
         inferencer.init(ldaOption);
-
         Model newModel = inferencer.inference();
+        
         for (int i = 0; i < newModel.phi.length; ++i) {
             //phi: K * V 
             System.out.println("-----------------------\ntopic" + i + " : ");
