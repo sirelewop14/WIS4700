@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -23,6 +24,8 @@ public class WIS4700 {
 
     static String rawInputFile = "/users/rhys/LDA_Test/user_tweets_fpl_from_twitter.csv";
     static String LDADirectory = "/Users/rhys/LDA_Test/Model";
+    static String dataFile = "/Users/rhys/LDA_Test/sample_data_stopped.txt";
+    static String twordsFile = "/Users/rhys/LDA_Test/sample_data_stopped.txt.model-final.twords";
 
     /**
      * @param args the command line arguments
@@ -31,13 +34,14 @@ public class WIS4700 {
     public static void main(String[] args) throws FileNotFoundException, IOException {
         Scanner scanner = new Scanner(System.in);
         boolean run = true;
-        
+
         while (run) {
             System.out.println("Please enter the operation to perform: ");
             System.out.println("1: Read in new data ");
             System.out.println("2: Estimate new Model");
             System.out.println("3: Inference New Data");
             System.out.println("4: Exit");
+            System.out.println("5: Evaluate Users");
             System.out.println();
             try {
                 int selection = scanner.nextInt();
@@ -52,6 +56,8 @@ public class WIS4700 {
                     performInference(options);
                 } else if (selection == 4) {
                     run = false;
+                } else if (selection == 5) {
+                    evaluateUsers();
                 }
             } catch (Exception e) {
                 System.out.println(e);
@@ -100,7 +106,7 @@ public class WIS4700 {
     }
 
     public static void saveMessages(ArrayList<String> data) throws IOException {
-        FileWriter fout = new FileWriter("/Users/rhys/LDA_Test/sample_data_stopped.txt");
+        FileWriter fout = new FileWriter(dataFile);
         try (BufferedWriter out = new BufferedWriter(fout)) {
             String size = Integer.toString(data.size());
             out.write(size, 0, size.length());
@@ -128,7 +134,7 @@ public class WIS4700 {
         options.dir = LDADirectory;
         options.modelName = "model-final";
         //ldaOption.niters = 10;
-        options.dfile = "../sample_data_stopped.txt";
+        options.dfile = "../" + dataFile;
         return options;
     }
 
@@ -137,7 +143,7 @@ public class WIS4700 {
         Inferencer inferencer = new Inferencer();
         inferencer.init(ldaOption);
         Model newModel = inferencer.inference();
-        
+
         for (int i = 0; i < newModel.phi.length; ++i) {
             //phi: K * V 
             System.out.println("-----------------------\ntopic" + i + " : ");
@@ -157,4 +163,61 @@ public class WIS4700 {
         estimator.estimate();
     }
 
+    public static void evaluateUsers() throws FileNotFoundException, IOException {
+        String[] twords = new String[20000];
+        Double[] twordVal = new Double[20000];
+        Boolean topicLine = true;
+        String splitVal = " ";
+        String line = "";
+        int i = 0;
+        int j = 0;
+        FileReader twordReader = new FileReader(twordsFile);
+        //This reads the topic keys and values into two arrays
+        try (BufferedReader twordin = new BufferedReader(twordReader)) {
+            while ((line = twordin.readLine()) != null) {
+                String[] splitLine = line.split(splitVal);
+                if (topicLine) {
+                    topicLine = false;
+                    j++;
+                } else {
+                    twords[i] = splitLine[0];
+                    twordVal[i] = Double.valueOf(splitLine[1]);
+                    //System.out.println(twords[i] + "   "+twordVal[i]);
+                    i++;
+                    if (j == 200) {
+                        j = 0;
+                        topicLine = true;
+                    } else {
+                        j++;
+                    }
+
+                }
+            }
+        } catch (Exception e) {
+            System.out.println(line);
+            System.out.println(e);
+        }
+        //This reads the users and messages in
+        ArrayList<String> users = new ArrayList<>();
+        ArrayList<Double[]> idAndVal = new ArrayList<>();
+        
+        String csvLine;
+        String csvSplit = ",";
+        FileReader csvReader = new FileReader(rawInputFile);
+        try (BufferedReader csvIn = new BufferedReader(csvReader)) {
+            while ((csvLine = csvIn.readLine()) != null) {
+                String[] csvSplitLine = csvLine.split(csvSplit);
+                int userIndex = 0;
+                if(!users.contains(csvSplitLine[0])){
+                    //User not in array
+                    users.add(csvSplitLine[0]);
+                }
+                userIndex = users.indexOf(csvSplitLine[0]);
+                
+                
+            }
+
+        }
+
+    }
 }
