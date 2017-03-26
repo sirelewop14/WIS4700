@@ -7,7 +7,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -26,6 +25,7 @@ public class WIS4700 {
     static String LDADirectory = "/Users/rhys/LDA_Test/Model";
     static String dataFile = "/Users/rhys/LDA_Test/sample_data_stopped.txt";
     static String twordsFile = "/Users/rhys/LDA_Test/sample_data_stopped.txt.model-final.twords";
+    static int numTwords = 200;
 
     /**
      * @param args the command line arguments
@@ -130,7 +130,7 @@ public class WIS4700 {
         //ldaOption.alpha = (50 / ldaOption.K);
         //ldaOption.beta = 0.1;
         options.savestep = 500;
-        options.twords = 200;
+        options.twords = numTwords;
         options.dir = LDADirectory;
         options.modelName = "model-final";
         //ldaOption.niters = 10;
@@ -184,7 +184,7 @@ public class WIS4700 {
                     twordVal[i] = Double.valueOf(splitLine[1]);
                     //System.out.println(twords[i] + "   "+twordVal[i]);
                     i++;
-                    if (j == 200) {
+                    if (j == numTwords) {
                         j = 0;
                         topicLine = true;
                     } else {
@@ -203,6 +203,7 @@ public class WIS4700 {
         
         String csvLine;
         String csvSplit = ",";
+        String messageSplit = " ";
         FileReader csvReader = new FileReader(rawInputFile);
         try (BufferedReader csvIn = new BufferedReader(csvReader)) {
             while ((csvLine = csvIn.readLine()) != null) {
@@ -213,11 +214,15 @@ public class WIS4700 {
                     users.add(csvSplitLine[0]);
                 }
                 userIndex = users.indexOf(csvSplitLine[0]);
-                
-                
+                String message[] = csvSplitLine[1].split(messageSplit);
+                for (int k = 0; k < message.length; k++) {
+                    for (int l = 0; l < twords.length; l++) {
+                        if(twords[l].equals(message[k])){
+                            
+                        }
+                    }
+                }
             }
-
         }
-
     }
 }
