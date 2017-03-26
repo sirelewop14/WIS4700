@@ -27,8 +27,9 @@ public class WIS4700 {
     static String dataFile = "/Users/rhys/LDA_Test/sample_data_stopped.txt";
     static String twordsFile = "/Users/rhys/LDA_Test/sample_data_stopped.txt.model-final.twords";
     static String userOutput = "/Users/rhys/LDA_Test/userEvalReport.txt";
-    static int numTwords = 200;
-    static int numTopics = 100;
+    final static int NUM_TWORDS = 200;
+    final static int NUM_TOPICS = 100;
+    static int totalTwords = NUM_TWORDS * NUM_TOPICS;
 
     /**
      * @param args the command line arguments
@@ -133,7 +134,7 @@ public class WIS4700 {
         //ldaOption.alpha = (50 / ldaOption.K);
         //ldaOption.beta = 0.1;
         options.savestep = 500;
-        options.twords = numTwords;
+        options.twords = NUM_TWORDS;
         options.dir = LDADirectory;
         options.modelName = "model-final";
         //ldaOption.niters = 10;
@@ -167,8 +168,8 @@ public class WIS4700 {
     }
 
     public static void evaluateUsers() throws FileNotFoundException, IOException {
-        String[] twords = new String[20000];
-        Double[] twordVal = new Double[20000];
+        String[] twords = new String[totalTwords];
+        Double[] twordVal = new Double[totalTwords];
         Boolean topicLine = true;
         String splitVal = " ";
         String line = "";
@@ -187,7 +188,7 @@ public class WIS4700 {
                     twordVal[i] = Double.valueOf(splitLine[1]);
                     //System.out.println(twords[i] + "   "+twordVal[i]);
                     i++;
-                    if (j == numTwords) {
+                    if (j == NUM_TWORDS) {
                         j = 0;
                         topicLine = true;
                     } else {
@@ -203,9 +204,9 @@ public class WIS4700 {
         //This reads the users and messages in
         ArrayList<String> users = new ArrayList<>();
         ArrayList<Double[]> idAndVal = new ArrayList<>();
-        Double[] topicArray = new Double[numTopics];
+        Double[] topicArray = new Double[NUM_TOPICS];
         Arrays.fill(topicArray, 0.0);
-        
+
         String csvLine;
         String csvSplit = ",";
         String messageSplit = " ";
@@ -214,43 +215,47 @@ public class WIS4700 {
             while ((csvLine = csvIn.readLine()) != null) {
                 String[] csvSplitLine = csvLine.split(csvSplit);
                 int userIndex = 0;
-                if(!users.contains(csvSplitLine[0])){
-                    //User not in array
-                    users.add(csvSplitLine[0]);
+                if (csvSplitLine.length <= 1) {
+                    System.out.println("Bad Line");
+                } else {
+                    if (!users.contains(csvSplitLine[0])) {
+                        //User not in array
+                        System.out.println("Adding new user: " + csvSplitLine[0]);
+                        users.add(csvSplitLine[0]);
+                        userIndex = users.indexOf(csvSplitLine[0]);
+                        idAndVal.add(userIndex, topicArray);
+                    }
                     userIndex = users.indexOf(csvSplitLine[0]);
-                    idAndVal.add(userIndex, topicArray);
-                }
-                userIndex = users.indexOf(csvSplitLine[0]);
-                String message[] = csvSplitLine[1].split(messageSplit);
-                for (int k = 0; k < message.length; k++) {
-                    for (int l = 0; l < twords.length; l++) {
-                        if(twords[l].equals(message[k])){
-                            int topicNumber = (l/numTwords);
-                            Double[] temp = idAndVal.get(userIndex);
-                            temp[topicNumber] = temp[topicNumber] + twordVal[l];
-                            idAndVal.set(userIndex, temp);
-                            
+                    String message[] = csvSplitLine[1].split(messageSplit);
+                    for (int k = 0; k < message.length; k++) {
+                        for (int l = 0; l < twords.length; l++) {
+                            if (twords[l].equals(message[k])) {
+                                int topicNumber = (l / NUM_TWORDS);
+                                Double[] temp = idAndVal.get(userIndex);
+                                temp[topicNumber] = temp[topicNumber] + twordVal[l];
+                                idAndVal.set(userIndex, temp);
+                            }
                         }
                     }
                 }
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e);
         }
+        //Write out the calculated results.
         FileWriter reportWriter = new FileWriter(userOutput);
-        try(BufferedWriter buffReportWriter = new BufferedWriter(reportWriter)){
+        try (BufferedWriter buffReportWriter = new BufferedWriter(reportWriter)) {
             for (int k = 0; k < users.size(); k++) {
                 buffReportWriter.write(users.get(k) + "\n");
                 Double[] tempVals = idAndVal.get(k);
-                for (int l = 0; l < numTopics; l++) {
-                    buffReportWriter.write(tempVals[l].toString()+ "\n");
+                for (int l = 0; l < NUM_TOPICS; l++) {
+                    buffReportWriter.write(tempVals[l].toString() + "\n");
                 }
             }
             buffReportWriter.flush();
             buffReportWriter.close();
-        } catch(Exception e){
+        } catch (Exception e) {
             System.out.println(e);
         }
-        
     }
 }
