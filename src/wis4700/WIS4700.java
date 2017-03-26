@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -25,7 +26,9 @@ public class WIS4700 {
     static String LDADirectory = "/Users/rhys/LDA_Test/Model";
     static String dataFile = "/Users/rhys/LDA_Test/sample_data_stopped.txt";
     static String twordsFile = "/Users/rhys/LDA_Test/sample_data_stopped.txt.model-final.twords";
+    static String userOutput = "/Users/rhys/LDA_Test/userEvalReport.txt";
     static int numTwords = 200;
+    static int numTopics = 100;
 
     /**
      * @param args the command line arguments
@@ -200,6 +203,8 @@ public class WIS4700 {
         //This reads the users and messages in
         ArrayList<String> users = new ArrayList<>();
         ArrayList<Double[]> idAndVal = new ArrayList<>();
+        Double[] topicArray = new Double[numTopics];
+        Arrays.fill(topicArray, 0.0);
         
         String csvLine;
         String csvSplit = ",";
@@ -212,17 +217,40 @@ public class WIS4700 {
                 if(!users.contains(csvSplitLine[0])){
                     //User not in array
                     users.add(csvSplitLine[0]);
+                    userIndex = users.indexOf(csvSplitLine[0]);
+                    idAndVal.add(userIndex, topicArray);
                 }
                 userIndex = users.indexOf(csvSplitLine[0]);
                 String message[] = csvSplitLine[1].split(messageSplit);
                 for (int k = 0; k < message.length; k++) {
                     for (int l = 0; l < twords.length; l++) {
                         if(twords[l].equals(message[k])){
+                            int topicNumber = (l/numTwords);
+                            Double[] temp = idAndVal.get(userIndex);
+                            temp[topicNumber] = temp[topicNumber] + twordVal[l];
+                            idAndVal.set(userIndex, temp);
                             
                         }
                     }
                 }
             }
+        } catch (Exception e){
+            System.out.println(e);
         }
+        FileWriter reportWriter = new FileWriter(userOutput);
+        try(BufferedWriter buffReportWriter = new BufferedWriter(reportWriter)){
+            for (int k = 0; k < users.size(); k++) {
+                buffReportWriter.write(users.get(k) + "\n");
+                Double[] tempVals = idAndVal.get(k);
+                for (int l = 0; l < numTopics; l++) {
+                    buffReportWriter.write(tempVals[l].toString()+ "\n");
+                }
+            }
+            buffReportWriter.flush();
+            buffReportWriter.close();
+        } catch(Exception e){
+            System.out.println(e);
+        }
+        
     }
 }
