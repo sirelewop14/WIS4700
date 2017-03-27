@@ -195,7 +195,7 @@ public class WIS4700 {
                     topicLine = false;
                     j++;
                 } else {
-                    twords[i] = splitLine[0];
+                    twords[i] = splitLine[0].trim();
                     twordVal[i] = Double.valueOf(splitLine[1]);
                     //System.out.println(twords[i] + "   "+twordVal[i]);
                     i++;
@@ -211,17 +211,10 @@ public class WIS4700 {
         } catch (Exception e) {
             System.out.println(e);
         }
-        //This reads the users and messages in
-        //For topic hits
+        //This reads the users and messages in for topic hits
         ArrayList<String> users = new ArrayList<>();
         ArrayList<Double[]> idAndVal = new ArrayList<>();
-        Double[] topicArray = new Double[NUM_TOPICS];
-        //For key hits
         ArrayList<int[]> idAndHitCount = new ArrayList<>();
-        int[] twordHits = new int[totalTwords];
-        //Fill to 0
-        Arrays.fill(topicArray, 0.0);
-        Arrays.fill(twordHits, 0);
         //Start parsing input
         String csvLine;
         String csvSplit = ",";
@@ -241,6 +234,10 @@ public class WIS4700 {
                         System.out.println("Adding new user: " + csvSplitLine[0]);
                         users.add(csvSplitLine[0]);
                         userIndex = users.indexOf(csvSplitLine[0]);
+                        Double[] topicArray = new Double[NUM_TOPICS];
+                        int[] twordHits = new int[totalTwords];
+                        Arrays.fill(topicArray, 0.0);
+                        Arrays.fill(twordHits, 0);
                         idAndVal.add(userIndex, topicArray);
                         idAndHitCount.add(userIndex, twordHits);
                     }
@@ -266,7 +263,8 @@ public class WIS4700 {
         } catch (Exception e) {
             System.out.println(e);
         }
-        //Write out the calculated results.
+        //Write out the calculated results by topic.
+        System.out.println("Total number of users: " + users.size());
         FileWriter reportWriter = new FileWriter(userOutput);
         try (BufferedWriter buffReportWriter = new BufferedWriter(reportWriter)) {
             System.out.println("Writing out Topic Report per User to: " + userOutput);
@@ -284,7 +282,7 @@ public class WIS4700 {
             System.out.println(e);
         }
 
-        
+        //Write out the Hit Count Results by user.
         FileWriter hitWriter = new FileWriter(twordHitOutput);
         try (BufferedWriter buffHitWriter = new BufferedWriter(hitWriter)) {
             System.out.println("Writing out User Key Hit Report to: " + twordHitOutput);
@@ -292,17 +290,21 @@ public class WIS4700 {
             for (int l = 0; l < users.size(); l++) {
                 buffHitWriter.write(users.get(l) + ",");
             }
+            buffHitWriter.write("\n");
             for (int k = 0; k < twords.length; k++) {
                 if (0 == (k % 200)) {
-                    buffHitWriter.write("Topic: " + k / 200);
+                    buffHitWriter.write("Topic: " + k / 200 + "\n");
                 }
                 buffHitWriter.write(twords[k] + ",");
                 for (int l = 0; l < users.size(); l++) {
                     int[] tempHitArray = idAndHitCount.get(l);
-                    buffHitWriter.write(tempHitArray[k]);
+                    String value = Integer.toString(tempHitArray[k]);
+                    buffHitWriter.write(value+",");
                 }
+                buffHitWriter.write("\n");
             }
-
+            buffHitWriter.flush();
+            buffHitWriter.close();
         }
     }
 }
