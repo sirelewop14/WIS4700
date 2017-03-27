@@ -14,7 +14,6 @@ import java.util.regex.Pattern;
 import wis4700.jgibblda.Estimator;
 import wis4700.jgibblda.Inferencer;
 import wis4700.jgibblda.LDACmdOption;
-import wis4700.jgibblda.Model;
 
 /**
  *
@@ -70,7 +69,7 @@ public class WIS4700 {
                     LDACmdOption options = setLDAOptions();
                     performEstimation(options);
                     performInference(options);
-                    //evaluateUsers();
+                    evaluateUsers();
                     run = false;
                 }
             } catch (Exception e) {
@@ -132,6 +131,7 @@ public class WIS4700 {
                 out.newLine();
             }
             out.flush();
+            out.close();
         } catch (Exception e) {
             System.out.println(e);
         }
@@ -156,16 +156,7 @@ public class WIS4700 {
         System.out.println("Do inference for previously unseen (new) data using a previously estimated LDA model");
         Inferencer inferencer = new Inferencer();
         inferencer.init(ldaOption);
-        Model newModel = inferencer.inference();
-
-        for (int i = 0; i < newModel.phi.length; ++i) {
-            //phi: K * V 
-            System.out.println("-----------------------\ntopic" + i + " : ");
-            System.out.println("start printing");
-            for (int j = 0; j < 10; ++j) {
-                System.out.println(inferencer.globalDict.id2word.get(j) + "\t" + newModel.phi[i][j]);
-            }
-        }
+        inferencer.inference();
     }
 
     public static void performEstimation(LDACmdOption ldaOption) {
@@ -234,13 +225,17 @@ public class WIS4700 {
                         System.out.println("Adding new user: " + csvSplitLine[0]);
                         users.add(csvSplitLine[0]);
                         userIndex = users.indexOf(csvSplitLine[0]);
+                        //Create new arrays and fill with 0's
                         Double[] topicArray = new Double[NUM_TOPICS];
                         int[] twordHits = new int[totalTwords];
                         Arrays.fill(topicArray, 0.0);
                         Arrays.fill(twordHits, 0);
+                        //Then assign arrays to userID's
                         idAndVal.add(userIndex, topicArray);
                         idAndHitCount.add(userIndex, twordHits);
                     }
+                    //After adding user to array
+                    //parse more docs
                     userIndex = users.indexOf(csvSplitLine[0]);
                     String message[] = csvSplitLine[1].split(messageSplit);
                     for (int k = 0; k < message.length; k++) {
@@ -269,9 +264,11 @@ public class WIS4700 {
         try (BufferedWriter buffReportWriter = new BufferedWriter(reportWriter)) {
             System.out.println("Writing out Topic Report per User to: " + userOutput);
             for (int k = 0; k < users.size(); k++) {
+                //Write out the username
                 buffReportWriter.write(users.get(k) + "\n");
                 Double[] tempVals = idAndVal.get(k);
                 for (int l = 0; l < NUM_TOPICS; l++) {
+                    //Write out the sum of hit values per topic
                     buffReportWriter.write(l + "," + "");
                     buffReportWriter.write(tempVals[l].toString() + "\n");
                 }
@@ -286,25 +283,31 @@ public class WIS4700 {
         FileWriter hitWriter = new FileWriter(twordHitOutput);
         try (BufferedWriter buffHitWriter = new BufferedWriter(hitWriter)) {
             System.out.println("Writing out User Key Hit Report to: " + twordHitOutput);
+            //CSV Field names
             buffHitWriter.write("twords,");
             for (int l = 0; l < users.size(); l++) {
+                //Each user is their own field
                 buffHitWriter.write(users.get(l) + ",");
             }
             buffHitWriter.write("\n");
             for (int k = 0; k < twords.length; k++) {
                 if (0 == (k % 200)) {
+                    //Determine topic key word sets and break up
                     buffHitWriter.write("Topic: " + k / 200 + "\n");
                 }
                 buffHitWriter.write(twords[k] + ",");
                 for (int l = 0; l < users.size(); l++) {
+                    //Write out the number of hits per key word by username
                     int[] tempHitArray = idAndHitCount.get(l);
                     String value = Integer.toString(tempHitArray[k]);
-                    buffHitWriter.write(value+",");
+                    buffHitWriter.write(value + ",");
                 }
                 buffHitWriter.write("\n");
             }
             buffHitWriter.flush();
             buffHitWriter.close();
+        } catch (Exception e) {
+            System.out.println(e);
         }
     }
 }
