@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import wis4700.jgibblda.Estimator;
@@ -66,6 +67,8 @@ public class WIS4700 {
                 } else if (selection == 6) {
                     ArrayList<String> data = readCSV();
                     saveMessages(data);
+                    //Pause for flush to disk
+                    TimeUnit.SECONDS.sleep(5);
                     LDACmdOption options = setLDAOptions();
                     performEstimation(options);
                     performInference(options);
@@ -79,6 +82,7 @@ public class WIS4700 {
     }
 
     public static ArrayList<String> readCSV() throws FileNotFoundException {
+        System.out.println("Reading in data from CSV");
         ArrayList<String> messages = new ArrayList<>();
         String splitVal = ",";
         String urlPattern = "((https?|ftp|gopher|telnet|file|Unsure|http):((//)|(\\\\))+[\\w\\d:#@%/;$()~_?\\+-=\\\\\\.&]*)";
@@ -119,6 +123,7 @@ public class WIS4700 {
     }
 
     public static void saveMessages(ArrayList<String> data) throws IOException {
+        System.out.println("Saving parsed CSV data");
         FileWriter fout = new FileWriter(dataFile);
         try (BufferedWriter out = new BufferedWriter(fout)) {
             String size = Integer.toString(data.size());
@@ -138,6 +143,7 @@ public class WIS4700 {
     }
 
     public static LDACmdOption setLDAOptions() {
+        System.out.println("Set LDA CMD Options");
         LDACmdOption options = new LDACmdOption();
         options.est = true;
         //ldaOption.inf = true;
@@ -160,6 +166,7 @@ public class WIS4700 {
     }
 
     public static void performEstimation(LDACmdOption ldaOption) {
+        System.out.println("Performing Estimation");
         //LDA Create new model with settings
         //This estimator creates a new model, but currently a model takes 4 hours
         //to build. This is commented out to avoid issues with overwriting.
@@ -169,6 +176,7 @@ public class WIS4700 {
     }
 
     public static void evaluateUsers() throws FileNotFoundException, IOException {
+        System.out.println("Starting user evaluation");
         //Total tword array and values for twords
         String[] twords = new String[totalTwords];
         Double[] twordVal = new Double[totalTwords];
