@@ -27,6 +27,7 @@ public class WIS4700 {
     static String dataFile = "/Users/rhys/LDA_Test/sample_data_stopped.txt";
     static String twordsFile = "/Users/rhys/LDA_Test/sample_data_stopped.txt.model-final.twords";
     static String userOutput = "/Users/rhys/LDA_Test/userEvalReport.txt";
+    static String twordHitOutput = "/Users/rhys/LDA_Test/twordHitReport.txt";
     final static int NUM_TWORDS = 200;
     final static int NUM_TOPICS = 100;
     static int totalTwords = NUM_TWORDS * NUM_TOPICS;
@@ -46,6 +47,7 @@ public class WIS4700 {
             System.out.println("3: Inference New Data");
             System.out.println("4: Exit");
             System.out.println("5: Evaluate Users");
+            System.out.println("6: Run 1,2,3,5 & Exit");
             System.out.println();
             try {
                 int selection = scanner.nextInt();
@@ -62,6 +64,14 @@ public class WIS4700 {
                     run = false;
                 } else if (selection == 5) {
                     evaluateUsers();
+                } else if (selection == 6) {
+                    ArrayList<String> data = readCSV();
+                    saveMessages(data);
+                    LDACmdOption options = setLDAOptions();
+                    performEstimation(options);
+                    performInference(options);
+                    //evaluateUsers();
+                    run = false;
                 }
             } catch (Exception e) {
                 System.out.println(e);
@@ -168,11 +178,12 @@ public class WIS4700 {
     }
 
     public static void evaluateUsers() throws FileNotFoundException, IOException {
+        //Total tword array and values for twords
         String[] twords = new String[totalTwords];
         Double[] twordVal = new Double[totalTwords];
         Boolean topicLine = true;
         String splitVal = " ";
-        String line = "";
+        String line;
         int i = 0;
         int j = 0;
         FileReader twordReader = new FileReader(twordsFile);
@@ -198,23 +209,30 @@ public class WIS4700 {
                 }
             }
         } catch (Exception e) {
-            System.out.println(line);
             System.out.println(e);
         }
         //This reads the users and messages in
+        //For topic hits
         ArrayList<String> users = new ArrayList<>();
         ArrayList<Double[]> idAndVal = new ArrayList<>();
         Double[] topicArray = new Double[NUM_TOPICS];
+        //For key hits
+        ArrayList<int[]> idAndHitCount = new ArrayList<>();
+        int[] twordHits = new int[totalTwords];
+        //Fill to 0
         Arrays.fill(topicArray, 0.0);
-
+        Arrays.fill(twordHits, 0);
+        //Start parsing input
         String csvLine;
         String csvSplit = ",";
         String messageSplit = " ";
         FileReader csvReader = new FileReader(rawInputFile);
         try (BufferedReader csvIn = new BufferedReader(csvReader)) {
             while ((csvLine = csvIn.readLine()) != null) {
-                String[] csvSplitLine = csvLine.split(csvSplit);
-                int userIndex = 0;
+                String stemmed = Stopwords.stemString(csvLine);
+                String stopped = Stopwords.removeStemmedStopWords(stemmed);
+                String[] csvSplitLine = stopped.split(csvSplit);
+                int userIndex;
                 if (csvSplitLine.length <= 1) {
                     System.out.println("Bad Line");
                 } else {
@@ -224,16 +242,22 @@ public class WIS4700 {
                         users.add(csvSplitLine[0]);
                         userIndex = users.indexOf(csvSplitLine[0]);
                         idAndVal.add(userIndex, topicArray);
+                        idAndHitCount.add(userIndex, twordHits);
                     }
                     userIndex = users.indexOf(csvSplitLine[0]);
                     String message[] = csvSplitLine[1].split(messageSplit);
                     for (int k = 0; k < message.length; k++) {
                         for (int l = 0; l < twords.length; l++) {
                             if (twords[l].equals(message[k])) {
+                                //Determine Topic
                                 int topicNumber = (l / NUM_TWORDS);
                                 Double[] temp = idAndVal.get(userIndex);
                                 temp[topicNumber] = temp[topicNumber] + twordVal[l];
                                 idAndVal.set(userIndex, temp);
+                                //Increment Key Hit
+                                int[] hitTemp = idAndHitCount.get(userIndex);
+                                hitTemp[l]++;
+                                idAndHitCount.set(userIndex, hitTemp);
                             }
                         }
                     }
@@ -245,11 +269,12 @@ public class WIS4700 {
         //Write out the calculated results.
         FileWriter reportWriter = new FileWriter(userOutput);
         try (BufferedWriter buffReportWriter = new BufferedWriter(reportWriter)) {
+            System.out.println("Writing out Topic Report per User to: " + userOutput);
             for (int k = 0; k < users.size(); k++) {
                 buffReportWriter.write(users.get(k) + "\n");
                 Double[] tempVals = idAndVal.get(k);
                 for (int l = 0; l < NUM_TOPICS; l++) {
-                    buffReportWriter.write(l + ","+"");
+                    buffReportWriter.write(l + "," + "");
                     buffReportWriter.write(tempVals[l].toString() + "\n");
                 }
             }
@@ -257,6 +282,27 @@ public class WIS4700 {
             buffReportWriter.close();
         } catch (Exception e) {
             System.out.println(e);
+        }
+
+        
+        FileWriter hitWriter = new FileWriter(twordHitOutput);
+        try (BufferedWriter buffHitWriter = new BufferedWriter(hitWriter)) {
+            System.out.println("Writing out User Key Hit Report to: " + twordHitOutput);
+            buffHitWriter.write("twords,");
+            for (int l = 0; l < users.size(); l++) {
+                buffHitWriter.write(users.get(l) + ",");
+            }
+            for (int k = 0; k < twords.length; k++) {
+                if (0 == (k % 200)) {
+                    buffHitWriter.write("Topic: " + k / 200);
+                }
+                buffHitWriter.write(twords[k] + ",");
+                for (int l = 0; l < users.size(); l++) {
+                    int[] tempHitArray = idAndHitCount.get(l);
+                    buffHitWriter.write(tempHitArray[k]);
+                }
+            }
+
         }
     }
 }
