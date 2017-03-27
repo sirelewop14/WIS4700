@@ -249,6 +249,7 @@ public class WIS4700 {
                 buffReportWriter.write(users.get(k) + "\n");
                 Double[] tempVals = idAndVal.get(k);
                 for (int l = 0; l < NUM_TOPICS; l++) {
+                    buffReportWriter.write(l + ","+"");
                     buffReportWriter.write(tempVals[l].toString() + "\n");
                 }
             }
