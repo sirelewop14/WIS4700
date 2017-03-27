@@ -25,6 +25,7 @@ public class WIS4700 {
     static String rawInputFile = "/users/rhys/LDA_Test/user_tweets_fpl_from_twitter.csv";
     static String LDADirectory = "/Users/rhys/LDA_Test/Model";
     static String dataFile = "/Users/rhys/LDA_Test/sample_data_stopped.txt";
+    static String dataFileName = "sample_data_stopped.txt";
     static String twordsFile = "/Users/rhys/LDA_Test/sample_data_stopped.txt.model-final.twords";
     static String userOutput = "/Users/rhys/LDA_Test/userEvalReport.txt";
     static String twordHitOutput = "/Users/rhys/LDA_Test/twordHitReport.txt";
@@ -154,7 +155,7 @@ public class WIS4700 {
         options.dir = LDADirectory;
         options.modelName = "model-final";
         //ldaOption.niters = 10;
-        options.dfile = "../" + dataFile;
+        options.dfile = "../" + dataFileName;
         return options;
     }
 
