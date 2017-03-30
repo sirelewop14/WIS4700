@@ -56,43 +56,39 @@ public class WIS4700 {
             try {
                 int selection = scanner.nextInt();
                 switch (selection) {
-                    case 1:
-                        {
-                            ArrayList<String> data = readCSV();
-                            saveMessages(data);
-                            break;
-                        }
-                    case 2:
-                        {
-                            LDACmdOption options = setLDAOptions();
-                            performEstimation(options);
-                            break;
-                        }
-                    case 3:
-                        {
-                            LDACmdOption options = setLDAOptions();
-                            performInference(options);
-                            break;
-                        }
+                    case 1: {
+                        ArrayList<String> data = readCSV();
+                        saveMessages(data);
+                        break;
+                    }
+                    case 2: {
+                        LDACmdOption options = setLDAOptions();
+                        performEstimation(options);
+                        break;
+                    }
+                    case 3: {
+                        LDACmdOption options = setLDAOptions();
+                        performInference(options);
+                        break;
+                    }
                     case 4:
                         run = false;
                         break;
                     case 5:
                         evaluateUsers();
                         break;
-                    case 6:
-                        {
-                            ArrayList<String> data = readCSV();
-                            saveMessages(data);
-                            //Pause for flush to disk
-                            TimeUnit.SECONDS.sleep(5);
-                            LDACmdOption options = setLDAOptions();
-                            performEstimation(options);
-                            performInference(options);
-                            evaluateUsers();
-                            run = false;
-                            break;
-                        }
+                    case 6: {
+                        ArrayList<String> data = readCSV();
+                        saveMessages(data);
+                        //Pause for flush to disk
+                        TimeUnit.SECONDS.sleep(5);
+                        LDACmdOption options = setLDAOptions();
+                        performEstimation(options);
+                        performInference(options);
+                        evaluateUsers();
+                        run = false;
+                        break;
+                    }
                     case 7:
                         labelTopics();
                         break;
@@ -346,6 +342,7 @@ public class WIS4700 {
     public static void labelTopics() throws FileNotFoundException {
         //Topics: 1, 5, 10, 18, 19, 26, 28, 33, 38, 46, 55, 61, 71, 84, 87, 89
         System.out.println("Producing labeled topic documents.");
+        System.out.println("Producing labeled User Topics document.");
         String[] topics = {"1", "5", "10", "18", "19", "26", "28", "33", "38", "46", "55", "61", "71", "84", "87", "89"};
         String[] labels = {"Tennis", "Rugby", "News", "Family", "Spurs", "FPL", "Love", "LFC", "UK Politics",
             "American Politics", "Education", "Twitter", "Driving", "Entertainment", "Food and Drink", "Music and Music Videos"};
@@ -361,24 +358,43 @@ public class WIS4700 {
                     if (splitLine.length <= 1) {
                         userTopicBuffWriter.write(line + "\n");
                         topicCounter = 0;
-                    } else {
-                        if (splitLine[0].equals(topics[topicCounter])) {
-                            userTopicBuffWriter.write(labels[topicCounter] + "," + splitLine[1] + "\n");
-                            if (!((topicCounter + 1) >= topics.length)) {
-                                topicCounter++;
-                            }
+                    } else if (splitLine[0].equals(topics[topicCounter])) {
+                        userTopicBuffWriter.write("\t" + labels[topicCounter] + ", " + splitLine[1] + "\n");
+                        if (!((topicCounter + 1) >= topics.length)) {
+                            topicCounter++;
                         }
-                    }                    
+                    }
                 }
                 userTopicBuffWriter.flush();
             }
         } catch (Exception e) {
             System.out.println(e);
         }
+        System.out.println("Producing Labeled User Hit Counts document.");
         FileReader userHitReader = new FileReader(twordHitOutput);
-        try(BufferedReader userHitBuffReader = new BufferedReader(userHitReader)){
-            
-        } catch (Exception e){
+        try (BufferedReader userHitBuffReader = new BufferedReader(userHitReader)) {
+            String line = "";
+            String topicNum = "Topic: ";
+            FileWriter labeledUserHitWriter = new FileWriter(labeledHitOutput);
+            BufferedWriter labeledUserHitBuffWriter = new BufferedWriter(labeledUserHitWriter);
+            Boolean first = true;
+            int topicCounter = 0;
+            while ((line = userHitBuffReader.readLine()) != null) {
+                if (first) {
+                    //First line is different
+                    labeledUserHitBuffWriter.write(line + "\n");
+                    first = false;
+                }
+                if (line.contains(topicNum)) {
+                    String[] splitLine = line.split(" ");
+                    if (splitLine[1].equals(topics[topicCounter])) {
+                        for (int i = 0; i < NUM_TWORDS; i++) {
+                            labeledUserHitBuffWriter.write(userHitBuffReader.readLine() + "\n");
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
             System.out.println(e);
         }
     }
