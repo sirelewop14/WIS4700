@@ -327,7 +327,7 @@ public class WIS4700 {
 
     public static void labelTopics() throws FileNotFoundException {
         //Topics: 1, 5, 10, 18, 19, 26, 28, 33, 38, 46, 55, 61, 71, 84, 87, 89
-
+        System.out.println("Producing labeled topic documents.");
         String[] topics = {"1", "5", "10", "18", "19", "26", "28", "33", "38", "46", "55", "61", "71", "84", "87", "89"};
         String[] labels = {"Tennis", "Rugby", "News", "Family", "Spurs", "FPL", "Love", "LFC", "UK Politics",
             "American Politics", "Education", "Twitter", "Driving", "Entertainment", "Food and Drink", "Music and Music Videos"};
@@ -338,12 +338,13 @@ public class WIS4700 {
             BufferedWriter userTopicBuffWriter = new BufferedWriter(userTopicWriter);
 
             String line = "";
-            int counter = 0;
+            //int counter = 0;
             int topicCounter = 0;
             while ((line = userTopicBuffReader.readLine()) != null) {
                 System.out.println(line);
                 String[] splitLine = line.split(splitVal);
                 if (splitLine.length <= 1) {
+                    //username
                     //System.out.println("Bad Line");
                     userTopicBuffWriter.write(line + "\n");
                     topicCounter = 0;
@@ -352,6 +353,7 @@ public class WIS4700 {
                         userTopicBuffWriter.write(labels[topicCounter] + "," + splitLine[1] + "\n");
                         topicCounter++;
                     }
+                    
                 }
                 //counter++;
             }
