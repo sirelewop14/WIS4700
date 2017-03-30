@@ -353,13 +353,26 @@ public class WIS4700 {
             try (BufferedWriter userTopicBuffWriter = new BufferedWriter(userTopicWriter)) {
                 String line = "";
                 int topicCounter = 0;
+                userTopicBuffWriter.write("Username,");
+                for (int i = 0; i < labels.length; i++) {
+                    userTopicBuffWriter.write(labels[i]+",");
+                }
+                userTopicBuffWriter.write("\n");
+                Boolean first = true;
                 while ((line = userTopicBuffReader.readLine()) != null) {
                     String[] splitLine = line.split(splitVal);
                     if (splitLine.length <= 1) {
-                        userTopicBuffWriter.write(line + "\n");
+                        if (!first) {
+                            userTopicBuffWriter.write("\n");
+                        }
+                        userTopicBuffWriter.write(line + ",[");
                         topicCounter = 0;
+                        first = false;
                     } else if (splitLine[0].equals(topics[topicCounter])) {
-                        userTopicBuffWriter.write("\t" + labels[topicCounter] + ", " + splitLine[1] + "\n");
+                        if (topicCounter == topics.length) {
+                            userTopicBuffWriter.write("]");
+                        }
+                        userTopicBuffWriter.write(splitLine[1] + ",");
                         if (!((topicCounter + 1) >= topics.length)) {
                             topicCounter++;
                         }
@@ -370,32 +383,32 @@ public class WIS4700 {
         } catch (Exception e) {
             System.out.println(e);
         }
-        System.out.println("Producing Labeled User Hit Counts document.");
-        FileReader userHitReader = new FileReader(twordHitOutput);
-        try (BufferedReader userHitBuffReader = new BufferedReader(userHitReader)) {
-            String line = "";
-            String topicNum = "Topic: ";
-            FileWriter labeledUserHitWriter = new FileWriter(labeledHitOutput);
-            BufferedWriter labeledUserHitBuffWriter = new BufferedWriter(labeledUserHitWriter);
-            Boolean first = true;
-            int topicCounter = 0;
-            while ((line = userHitBuffReader.readLine()) != null) {
-                if (first) {
-                    //First line is different
-                    labeledUserHitBuffWriter.write(line + "\n");
-                    first = false;
-                }
-                if (line.contains(topicNum)) {
-                    String[] splitLine = line.split(" ");
-                    if (splitLine[1].equals(topics[topicCounter])) {
-                        for (int i = 0; i < NUM_TWORDS; i++) {
-                            labeledUserHitBuffWriter.write(userHitBuffReader.readLine() + "\n");
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
-            System.out.println(e);
-        }
+//        System.out.println("Producing Labeled User Hit Counts document.");
+//        FileReader userHitReader = new FileReader(twordHitOutput);
+//        try (BufferedReader userHitBuffReader = new BufferedReader(userHitReader)) {
+//            String line = "";
+//            String topicNum = "Topic: ";
+//            FileWriter labeledUserHitWriter = new FileWriter(labeledHitOutput);
+//            BufferedWriter labeledUserHitBuffWriter = new BufferedWriter(labeledUserHitWriter);
+//            Boolean first = true;
+//            int topicCounter = 0;
+//            while ((line = userHitBuffReader.readLine()) != null) {
+//                if (first) {
+//                    //First line is different
+//                    labeledUserHitBuffWriter.write(line + "\n");
+//                    first = false;
+//                }
+//                if (line.contains(topicNum)) {
+//                    String[] splitLine = line.split(" ");
+//                    if (splitLine[1].equals(topics[topicCounter])) {
+//                        for (int i = 0; i < NUM_TWORDS; i++) {
+//                            labeledUserHitBuffWriter.write(userHitBuffReader.readLine() + "\n");
+//                        }
+//                    }
+//                }
+//            }
+//        } catch (Exception e) {
+//            System.out.println(e);
+//        }
     }
 }
