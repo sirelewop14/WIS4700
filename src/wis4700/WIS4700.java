@@ -29,6 +29,8 @@ public class WIS4700 {
     static String twordsFile = "/Users/rhys/LDA_Test/sample_data_stopped.txt.model-final.twords";
     static String userOutput = "/Users/rhys/LDA_Test/userEvalReport.txt";
     static String twordHitOutput = "/Users/rhys/LDA_Test/twordHitReport.txt";
+    static String labeledUserOutput = "/Users/rhys/LDA_Test/labeledEserEvalReport.txt";
+    static String labeledHitOutput = "/Users/rhys/LDA_Test/labeledTwordHitReport.txt";
     final static int NUM_TWORDS = 200;
     final static int NUM_TOPICS = 100;
     static int totalTwords = NUM_TWORDS * NUM_TOPICS;
@@ -49,6 +51,7 @@ public class WIS4700 {
             System.out.println("4: Exit");
             System.out.println("5: Evaluate Users");
             System.out.println("6: Run 1,2,3,5 & Exit");
+            System.out.println("7: Label Topics");
             System.out.println();
             try {
                 int selection = scanner.nextInt();
@@ -75,6 +78,8 @@ public class WIS4700 {
                     performInference(options);
                     evaluateUsers();
                     run = false;
+                } else if (selection == 7) {
+                    labelTopics();
                 }
             } catch (Exception e) {
                 System.out.println(e);
@@ -318,5 +323,44 @@ public class WIS4700 {
         } catch (Exception e) {
             System.out.println(e);
         }
+    }
+
+    public static void labelTopics() throws FileNotFoundException {
+        //Topics: 1, 5, 10, 18, 19, 26, 28, 33, 38, 46, 55, 61, 71, 84, 87, 89
+
+        String[] topics = {"1", "5", "10", "18", "19", "26", "28", "33", "38", "46", "55", "61", "71", "84", "87", "89"};
+        String[] labels = {"Tennis", "Rugby", "News", "Family", "Spurs", "FPL", "Love", "LFC", "UK Politics",
+            "American Politics", "Education", "Twitter", "Driving", "Entertainment", "Food and Drink", "Music and Music Videos"};
+        FileReader userTopicReader = new FileReader(userOutput);
+        String splitVal = ",";
+        try (BufferedReader userTopicBuffReader = new BufferedReader(userTopicReader)) {
+            FileWriter userTopicWriter = new FileWriter(labeledUserOutput);
+            BufferedWriter userTopicBuffWriter = new BufferedWriter(userTopicWriter);
+
+            String line = "";
+            int counter = 0;
+            int topicCounter = 0;
+            while ((line = userTopicBuffReader.readLine()) != null) {
+                System.out.println(line);
+                String[] splitLine = line.split(splitVal);
+                if (splitLine.length <= 1) {
+                    //System.out.println("Bad Line");
+                    userTopicBuffWriter.write(line + "\n");
+                    topicCounter = 0;
+                } else {
+                    if (splitLine[0].equals(topics[topicCounter])) {
+                        userTopicBuffWriter.write(labels[topicCounter] + "," + splitLine[1] + "\n");
+                        topicCounter++;
+                    }
+                }
+                //counter++;
+            }
+
+            userTopicBuffWriter.flush();
+            userTopicBuffWriter.close();
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+
     }
 }
