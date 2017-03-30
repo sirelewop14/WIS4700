@@ -370,11 +370,11 @@ public class WIS4700 {
             try (BufferedWriter userTopicBuffWriter = new BufferedWriter(userTopicWriter)) {
                 String line = "";
                 int topicCounter = 0;
-                userTopicBuffWriter.write("Username,");
+                userTopicBuffWriter.write("Username,[");
                 for (int i = 0; i < labels.length; i++) {
                     userTopicBuffWriter.write(labels[i] + ",");
                 }
-                userTopicBuffWriter.write("\n");
+                userTopicBuffWriter.write("]\n");
                 Boolean first = true;
                 while ((line = userTopicBuffReader.readLine()) != null) {
                     String[] splitLine = line.split(splitVal);
@@ -386,12 +386,11 @@ public class WIS4700 {
                         topicCounter = 0;
                         first = false;
                     } else if (splitLine[0].equals(topics[topicCounter])) {
-                        if (topicCounter == topics.length) {
-                            userTopicBuffWriter.write("]");
-                        }
                         userTopicBuffWriter.write(splitLine[1] + ",");
                         if (!((topicCounter + 1) >= topics.length)) {
                             topicCounter++;
+                        } else {
+                            userTopicBuffWriter.write("]");
                         }
                     }
                 }
