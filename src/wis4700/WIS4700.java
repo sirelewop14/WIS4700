@@ -29,7 +29,7 @@ public class WIS4700 {
     static String twordsFile = "/Users/rhys/LDA_Test/sample_data_stopped.txt.model-final.twords";
     static String userOutput = "/Users/rhys/LDA_Test/userEvalReport.txt";
     static String twordHitOutput = "/Users/rhys/LDA_Test/twordHitReport.txt";
-    static String labeledUserOutput = "/Users/rhys/LDA_Test/labeledEserEvalReport.txt";
+    static String labeledUserOutput = "/Users/rhys/LDA_Test/labeledUserEvalReport.txt";
     static String labeledHitOutput = "/Users/rhys/LDA_Test/labeledTwordHitReport.txt";
     final static int NUM_TWORDS = 200;
     final static int NUM_TOPICS = 100;
@@ -55,33 +55,51 @@ public class WIS4700 {
             System.out.println();
             try {
                 int selection = scanner.nextInt();
-                if (selection == 1) {
-                    ArrayList<String> data = readCSV();
-                    saveMessages(data);
-                } else if (selection == 2) {
-                    LDACmdOption options = setLDAOptions();
-                    performEstimation(options);
-                } else if (selection == 3) {
-                    LDACmdOption options = setLDAOptions();
-                    performInference(options);
-                } else if (selection == 4) {
-                    run = false;
-                } else if (selection == 5) {
-                    evaluateUsers();
-                } else if (selection == 6) {
-                    ArrayList<String> data = readCSV();
-                    saveMessages(data);
-                    //Pause for flush to disk
-                    TimeUnit.SECONDS.sleep(5);
-                    LDACmdOption options = setLDAOptions();
-                    performEstimation(options);
-                    performInference(options);
-                    evaluateUsers();
-                    run = false;
-                } else if (selection == 7) {
-                    labelTopics();
+                switch (selection) {
+                    case 1:
+                        {
+                            ArrayList<String> data = readCSV();
+                            saveMessages(data);
+                            break;
+                        }
+                    case 2:
+                        {
+                            LDACmdOption options = setLDAOptions();
+                            performEstimation(options);
+                            break;
+                        }
+                    case 3:
+                        {
+                            LDACmdOption options = setLDAOptions();
+                            performInference(options);
+                            break;
+                        }
+                    case 4:
+                        run = false;
+                        break;
+                    case 5:
+                        evaluateUsers();
+                        break;
+                    case 6:
+                        {
+                            ArrayList<String> data = readCSV();
+                            saveMessages(data);
+                            //Pause for flush to disk
+                            TimeUnit.SECONDS.sleep(5);
+                            LDACmdOption options = setLDAOptions();
+                            performEstimation(options);
+                            performInference(options);
+                            evaluateUsers();
+                            run = false;
+                            break;
+                        }
+                    case 7:
+                        labelTopics();
+                        break;
+                    default:
+                        break;
                 }
-            } catch (Exception e) {
+            } catch (IOException | InterruptedException e) {
                 System.out.println(e);
             }
         }
@@ -335,34 +353,33 @@ public class WIS4700 {
         String splitVal = ",";
         try (BufferedReader userTopicBuffReader = new BufferedReader(userTopicReader)) {
             FileWriter userTopicWriter = new FileWriter(labeledUserOutput);
-            BufferedWriter userTopicBuffWriter = new BufferedWriter(userTopicWriter);
-
-            String line = "";
-            //int counter = 0;
-            int topicCounter = 0;
-            while ((line = userTopicBuffReader.readLine()) != null) {
-                System.out.println(line);
-                String[] splitLine = line.split(splitVal);
-                if (splitLine.length <= 1) {
-                    //username
-                    //System.out.println("Bad Line");
-                    userTopicBuffWriter.write(line + "\n");
-                    topicCounter = 0;
-                } else {
-                    if (splitLine[0].equals(topics[topicCounter])) {
-                        userTopicBuffWriter.write(labels[topicCounter] + "," + splitLine[1] + "\n");
-                        topicCounter++;
-                    }
-                    
+            try (BufferedWriter userTopicBuffWriter = new BufferedWriter(userTopicWriter)) {
+                String line = "";
+                int topicCounter = 0;
+                while ((line = userTopicBuffReader.readLine()) != null) {
+                    String[] splitLine = line.split(splitVal);
+                    if (splitLine.length <= 1) {
+                        userTopicBuffWriter.write(line + "\n");
+                        topicCounter = 0;
+                    } else {
+                        if (splitLine[0].equals(topics[topicCounter])) {
+                            userTopicBuffWriter.write(labels[topicCounter] + "," + splitLine[1] + "\n");
+                            if (!((topicCounter + 1) >= topics.length)) {
+                                topicCounter++;
+                            }
+                        }
+                    }                    
                 }
-                //counter++;
+                userTopicBuffWriter.flush();
             }
-
-            userTopicBuffWriter.flush();
-            userTopicBuffWriter.close();
         } catch (Exception e) {
             System.out.println(e);
         }
-
+        FileReader userHitReader = new FileReader(twordHitOutput);
+        try(BufferedReader userHitBuffReader = new BufferedReader(userHitReader)){
+            
+        } catch (Exception e){
+            System.out.println(e);
+        }
     }
 }
