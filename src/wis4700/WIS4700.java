@@ -22,11 +22,11 @@ import wis4700.jgibblda.LDACmdOption;
  */
 public class WIS4700 {
 
-    static String rawInputFile = "/users/rhys/LDA_Test/user_tweets_fpl_from_twitter.csv";
-    static String LDADirectory = "/Users/rhys/LDA_Test/Model";
-    static String dataFile = "/Users/rhys/LDA_Test/sample_data_stopped.txt";
-    static String dataFileName = "sample_data_stopped.txt";
-    static String twordsFile = "/Users/rhys/LDA_Test/sample_data_stopped.txt.model-final.twords";
+    //static String rawInputFile = "/users/rhys/LDA_Test/user_tweets_fpl_from_twitter.csv";
+    //static  "/Users/rhys/LDA_Test/Model";
+    //static String dataFile = "/Users/rhys/LDA_Test/sample_data_stopped.txt";
+    //static String dataFileName = "sample_data_stopped.txt";
+    //static String twordsFile = "/Users/rhys/LDA_Test/sample_data_stopped.txt.model-final.twords";
     static String userOutput = "/Users/rhys/LDA_Test/userEvalReport.txt";
     static String twordHitOutput = "/Users/rhys/LDA_Test/twordHitReport.txt";
     static String labeledUserOutput = "/Users/rhys/LDA_Test/labeledUserEvalReport.txt";
@@ -43,12 +43,26 @@ public class WIS4700 {
         Scanner scanner = new Scanner(System.in);
         boolean run = true;
 
+        System.out.println("Please enter the parameters for modeling:");
+        System.out.println("All files are relative to the LDA Model Directory!");
+        System.out.println("\tLDA Model Directory: ");
+        String LDADirectory = scanner.nextLine().trim();
+        System.out.println("\tRaw CSV Input File: ");
+        String rawInputFile = scanner.nextLine().trim();
+        System.out.println("\tProcessed CSV File Name: ");
+        String dataFileName = scanner.nextLine().trim();
+        String dataFile = LDADirectory + dataFileName;
+        System.out.println("\tEnter T-Word File Name: ");
+        String twordsFile = scanner.nextLine().trim();
+        
+        
+
         while (run) {
             System.out.println("Please enter the operation to perform: ");
-            System.out.println("1: Read in new data ");
-            System.out.println("2: Estimate new Model");
-            System.out.println("3: Inference New Data");
-            System.out.println("4: Exit");
+            System.out.println("1: Exit");
+            System.out.println("2: Read in new data");
+            System.out.println("3: Estimate new Model");
+            System.out.println("4: Inference New Data");
             System.out.println("5: Evaluate Users");
             System.out.println("6: Run 1,2,3,5 & Exit");
             System.out.println("7: Label Topics");
@@ -57,26 +71,28 @@ public class WIS4700 {
                 int selection = scanner.nextInt();
                 switch (selection) {
                     case 1: {
+                        run = false;
+                        break;
+                    }
+                    case 2: {
                         ArrayList<String> data = readCSV();
                         saveMessages(data);
                         break;
                     }
-                    case 2: {
+                    case 3: {
                         LDACmdOption options = setLDAOptions();
                         performEstimation(options);
                         break;
                     }
-                    case 3: {
+                    case 4: {
                         LDACmdOption options = setLDAOptions();
                         performInference(options);
                         break;
                     }
-                    case 4:
-                        run = false;
-                        break;
-                    case 5:
+                    case 5: {
                         evaluateUsers();
                         break;
+                    }
                     case 6: {
                         ArrayList<String> data = readCSV();
                         saveMessages(data);
@@ -89,9 +105,10 @@ public class WIS4700 {
                         run = false;
                         break;
                     }
-                    case 7:
+                    case 7: {
                         labelTopics();
                         break;
+                    }
                     default:
                         break;
                 }
@@ -355,7 +372,7 @@ public class WIS4700 {
                 int topicCounter = 0;
                 userTopicBuffWriter.write("Username,");
                 for (int i = 0; i < labels.length; i++) {
-                    userTopicBuffWriter.write(labels[i]+",");
+                    userTopicBuffWriter.write(labels[i] + ",");
                 }
                 userTopicBuffWriter.write("\n");
                 Boolean first = true;
@@ -383,32 +400,5 @@ public class WIS4700 {
         } catch (Exception e) {
             System.out.println(e);
         }
-//        System.out.println("Producing Labeled User Hit Counts document.");
-//        FileReader userHitReader = new FileReader(twordHitOutput);
-//        try (BufferedReader userHitBuffReader = new BufferedReader(userHitReader)) {
-//            String line = "";
-//            String topicNum = "Topic: ";
-//            FileWriter labeledUserHitWriter = new FileWriter(labeledHitOutput);
-//            BufferedWriter labeledUserHitBuffWriter = new BufferedWriter(labeledUserHitWriter);
-//            Boolean first = true;
-//            int topicCounter = 0;
-//            while ((line = userHitBuffReader.readLine()) != null) {
-//                if (first) {
-//                    //First line is different
-//                    labeledUserHitBuffWriter.write(line + "\n");
-//                    first = false;
-//                }
-//                if (line.contains(topicNum)) {
-//                    String[] splitLine = line.split(" ");
-//                    if (splitLine[1].equals(topics[topicCounter])) {
-//                        for (int i = 0; i < NUM_TWORDS; i++) {
-//                            labeledUserHitBuffWriter.write(userHitBuffReader.readLine() + "\n");
-//                        }
-//                    }
-//                }
-//            }
-//        } catch (Exception e) {
-//            System.out.println(e);
-//        }
     }
 }
