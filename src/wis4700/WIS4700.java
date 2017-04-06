@@ -47,15 +47,13 @@ public class WIS4700 {
         System.out.println("All files are relative to the LDA Model Directory!");
         System.out.println("\tLDA Model Directory: ");
         String LDADirectory = scanner.nextLine().trim();
-        System.out.println("\tRaw CSV Input File: ");
-        String rawInputFile = scanner.nextLine().trim();
-        System.out.println("\tProcessed CSV File Name: ");
-        String dataFileName = scanner.nextLine().trim();
-        String dataFile = LDADirectory + dataFileName;
+
         System.out.println("\tEnter T-Word File Name: ");
         String twordsFile = scanner.nextLine().trim();
-        
-        
+
+        String rawInputFile = "";
+        String dataFileName = "";
+        String dataFile = "";
 
         while (run) {
             System.out.println("Please enter the operation to perform: ");
@@ -75,17 +73,26 @@ public class WIS4700 {
                         break;
                     }
                     case 2: {
-                        ArrayList<String> data = readCSV();
-                        saveMessages(data);
+                        System.out.println("\tRaw CSV Input File: ");
+                        rawInputFile = scanner.nextLine().trim();
+                        System.out.println("\tProcessed CSV File Name: ");
+                        dataFileName = scanner.nextLine().trim();
+                        dataFile = LDADirectory + dataFileName;
+                        ArrayList<String> data = readCSV(rawInputFile);
+                        saveMessages(data, dataFile);
                         break;
                     }
                     case 3: {
-                        LDACmdOption options = setLDAOptions();
+                        System.out.println("\tProcessed CSV File Name: ");
+                        dataFileName = scanner.nextLine().trim();
+                        LDACmdOption options = setLDAOptions(LDADirectory, dataFileName);
                         performEstimation(options);
                         break;
                     }
                     case 4: {
-                        LDACmdOption options = setLDAOptions();
+                        System.out.println("\tProcessed CSV File Name: ");
+                        dataFileName = scanner.nextLine().trim();
+                        LDACmdOption options = setLDAOptions(LDADirectory, dataFileName);
                         performInference(options);
                         break;
                     }
@@ -93,12 +100,17 @@ public class WIS4700 {
                         evaluateUsers();
                         break;
                     }
-                    case 6: {
-                        ArrayList<String> data = readCSV();
-                        saveMessages(data);
+                    case 6: {                        
+                        System.out.println("\tRaw CSV Input File: ");
+                        rawInputFile = scanner.nextLine().trim();
+                        System.out.println("\tProcessed CSV File Name: ");
+                        dataFileName = scanner.nextLine().trim();
+                        dataFile = LDADirectory + dataFileName;
+                        ArrayList<String> data = readCSV(rawInputFile);
+                        saveMessages(data, dataFile);
                         //Pause for flush to disk
                         TimeUnit.SECONDS.sleep(5);
-                        LDACmdOption options = setLDAOptions();
+                        LDACmdOption options = setLDAOptions(LDADirectory, dataFileName);
                         performEstimation(options);
                         performInference(options);
                         evaluateUsers();
@@ -118,7 +130,7 @@ public class WIS4700 {
         }
     }
 
-    public static ArrayList<String> readCSV() throws FileNotFoundException {
+    public static ArrayList<String> readCSV(String rawInputFile) throws FileNotFoundException {
         System.out.println("Reading in data from CSV");
         ArrayList<String> messages = new ArrayList<>();
         String splitVal = ",";
@@ -159,7 +171,7 @@ public class WIS4700 {
         return messages;
     }
 
-    public static void saveMessages(ArrayList<String> data) throws IOException {
+    public static void saveMessages(ArrayList<String> data, String dataFile) throws IOException {
         System.out.println("Saving parsed CSV data");
         FileWriter fout = new FileWriter(dataFile);
         try (BufferedWriter out = new BufferedWriter(fout)) {
@@ -179,7 +191,7 @@ public class WIS4700 {
         }
     }
 
-    public static LDACmdOption setLDAOptions() {
+    public static LDACmdOption setLDAOptions(String LDADirectory, String dataFileName) {
         System.out.println("Set LDA CMD Options");
         LDACmdOption options = new LDACmdOption();
         options.est = true;
@@ -212,7 +224,7 @@ public class WIS4700 {
         estimator.estimate();
     }
 
-    public static void evaluateUsers() throws FileNotFoundException, IOException {
+    public static void evaluateUsers(String twordsFile, String rawInputFile) throws FileNotFoundException, IOException {
         System.out.println("Starting user evaluation");
         //Total tword array and values for twords
         String[] twords = new String[totalTwords];
