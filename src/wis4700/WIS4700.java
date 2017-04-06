@@ -27,10 +27,10 @@ public class WIS4700 {
     //static String dataFile = "/Users/rhys/LDA_Test/sample_data_stopped.txt";
     //static String dataFileName = "sample_data_stopped.txt";
     //static String twordsFile = "/Users/rhys/LDA_Test/sample_data_stopped.txt.model-final.twords";
-    static String userOutput = "/Users/rhys/LDA_Test/userEvalReport.txt";
-    static String twordHitOutput = "/Users/rhys/LDA_Test/twordHitReport.txt";
-    static String labeledUserOutput = "/Users/rhys/LDA_Test/labeledUserEvalReport.txt";
-    static String labeledHitOutput = "/Users/rhys/LDA_Test/labeledTwordHitReport.txt";
+    //static String userOutput = "/Users/rhys/LDA_Test/userEvalReport.txt";
+    //static String twordHitOutput = "/Users/rhys/LDA_Test/twordHitReport.txt";
+    //static String labeledUserOutput = "/Users/rhys/LDA_Test/labeledUserEvalReport.txt";
+    //static String labeledHitOutput = "/Users/rhys/LDA_Test/labeledTwordHitReport.txt";
     final static int NUM_TWORDS = 200;
     final static int NUM_TOPICS = 100;
     static int totalTwords = NUM_TWORDS * NUM_TOPICS;
@@ -54,6 +54,10 @@ public class WIS4700 {
         String rawInputFile = "";
         String dataFileName = "";
         String dataFile = "";
+        String userOutput = "";
+        String twordHitOutput = "";
+        String labeledUserOutput;
+        String labeledHitOutput;
 
         while (run) {
             System.out.println("Please enter the operation to perform: ");
@@ -97,7 +101,11 @@ public class WIS4700 {
                         break;
                     }
                     case 5: {
-                        evaluateUsers();
+                        System.out.println("Please enter the filename for User Output: ");
+                        userOutput = scanner.nextLine().trim();
+                        System.out.println("Please enter the filename for T-Word Hit Output:");
+                        twordHitOutput = scanner.nextLine().trim();
+                        evaluateUsers(userOutput, twordHitOutput);
                         break;
                     }
                     case 6: {                        
@@ -224,7 +232,7 @@ public class WIS4700 {
         estimator.estimate();
     }
 
-    public static void evaluateUsers(String twordsFile, String rawInputFile) throws FileNotFoundException, IOException {
+    public static void evaluateUsers(String twordsFile, String rawInputFile, String userOutput, String twordHitOutput) throws FileNotFoundException, IOException {
         System.out.println("Starting user evaluation");
         //Total tword array and values for twords
         String[] twords = new String[totalTwords];
