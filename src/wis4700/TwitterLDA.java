@@ -273,13 +273,9 @@ public class TwitterLDA {
         }
     }
 
-    public void labelTopics() throws FileNotFoundException {
-        //Topics: 1, 5, 10, 18, 19, 26, 28, 33, 38, 46, 55, 61, 71, 84, 87, 89
+    public void labelTopics(String[] topics, String[] labels, String userOutput, String labeledUserOutput) throws FileNotFoundException {
         System.out.println("Producing labeled topic documents.");
         System.out.println("Producing labeled User Topics document.");
-        String[] topics = {"1", "5", "10", "18", "19", "26", "28", "33", "38", "46", "55", "61", "71", "84", "87", "89"};
-        String[] labels = {"Tennis", "Rugby", "News", "Family", "Spurs", "FPL", "Love", "LFC", "UK Politics",
-            "American Politics", "Education", "Twitter", "Driving", "Entertainment", "Food and Drink", "Music and Music Videos"};
         FileReader userTopicReader = new FileReader(userOutput);
         String splitVal = ",";
         try (BufferedReader userTopicBuffReader = new BufferedReader(userTopicReader)) {
@@ -317,5 +313,4 @@ public class TwitterLDA {
             System.out.println(e);
         }
     }
-
 }

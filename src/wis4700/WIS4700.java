@@ -26,16 +26,12 @@ public class WIS4700 {
         System.out.println("\tLDA Model Directory: ");
         String LDADirectory = scanner.nextLine().trim();
 
-        System.out.println("\tEnter T-Word File Name: ");
-        String twordsFile = scanner.nextLine().trim();
-
-        String rawInputFile = "";
-        String dataFileName = "";
-        String dataFile = "";
-        String userOutput = "";
-        String twordHitOutput = "";
+        String rawInputFile;
+        String dataFileName;
+        String dataFile;
+        String userOutput;
+        String twordHitOutput;
         String labeledUserOutput;
-        String labeledHitOutput;
 
         //Twords, topics
         TwitterLDA analyzer = new TwitterLDA(200, 100);
@@ -49,6 +45,7 @@ public class WIS4700 {
             System.out.println("5: Evaluate Users");
             System.out.println("6: Run 1,2,3,5 & Exit");
             System.out.println("7: Label Topics");
+            System.out.println("8: Run Demo with defaults");
             System.out.println();
             try {
                 int selection = scanner.nextInt();
@@ -82,16 +79,26 @@ public class WIS4700 {
                         break;
                     }
                     case 5: {
-                        System.out.println("Please enter the filename for User Output: ");
+                        System.out.println("\tEnter T-Word File Name: ");
+                        String twordsFile = scanner.nextLine().trim();
+                        System.out.println("\tRaw CSV Input File: ");
+                        rawInputFile = scanner.nextLine().trim();
+                        System.out.println("\tPlease enter the filename for User Output: ");
                         userOutput = scanner.nextLine().trim();
-                        System.out.println("Please enter the filename for T-Word Hit Output:");
+                        System.out.println("\tPlease enter the filename for T-Word Hit Output:");
                         twordHitOutput = scanner.nextLine().trim();
-                        analyzer.evaluateUsers(userOutput, twordHitOutput);
+                        analyzer.evaluateUsers(twordsFile, rawInputFile, userOutput, twordHitOutput);
                         break;
                     }
                     case 6: {
+                        System.out.println("\tEnter T-Word File Name: ");
+                        String twordsFile = scanner.nextLine().trim();
                         System.out.println("\tRaw CSV Input File: ");
                         rawInputFile = scanner.nextLine().trim();
+                        System.out.println("\tPlease enter the filename for User Output: ");
+                        userOutput = scanner.nextLine().trim();
+                        System.out.println("\tPlease enter the filename for T-Word Hit Output:");
+                        twordHitOutput = scanner.nextLine().trim();
                         System.out.println("\tProcessed CSV File Name: ");
                         dataFileName = scanner.nextLine().trim();
                         dataFile = LDADirectory + dataFileName;
@@ -102,12 +109,23 @@ public class WIS4700 {
                         LDACmdOption options = analyzer.setLDAOptions(LDADirectory, dataFileName);
                         analyzer.performEstimation(options);
                         analyzer.performInference(options);
-                        analyzer.evaluateUsers();
+                        analyzer.evaluateUsers(twordsFile, rawInputFile, userOutput, twordHitOutput);
                         run = false;
                         break;
                     }
                     case 7: {
-                        labelTopics();
+                        System.out.println("\tPlease enter the filename for User Output: ");
+                        userOutput = scanner.nextLine().trim();
+                        System.out.println("\tPlease enter the filename for Labeled User Output: ");
+                        labeledUserOutput = scanner.nextLine().trim();
+                        String[] topics = {"1", "5", "10", "18", "19", "26", "28", "33", "38", "46", "55", "61", "71", "84", "87", "89"};
+                        String[] labels = {"Tennis", "Rugby", "News", "Family", "Spurs", "FPL", "Love", "LFC", "UK Politics",
+                            "American Politics", "Education", "Twitter", "Driving", "Entertainment", "Food and Drink", "Music and Music Videos"};
+                        analyzer.labelTopics(topics, labels, userOutput, labeledUserOutput);
+                        break;
+                    }
+                    case 8: {
+
                         break;
                     }
                     default:
