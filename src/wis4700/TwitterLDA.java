@@ -29,12 +29,23 @@ public class TwitterLDA {
     private final int NUM_TOPICS;
     private final int totalTwords;
 
+    /**
+     *
+     * @param twords
+     * @param topics
+     */
     public TwitterLDA(int twords, int topics) {
         NUM_TWORDS = twords;
         NUM_TOPICS = topics;
         totalTwords = NUM_TWORDS * NUM_TOPICS;
     }
 
+    /**
+     *
+     * @param rawInputFile
+     * @return
+     * @throws FileNotFoundException
+     */
     public ArrayList<String> readCSV(String rawInputFile) throws FileNotFoundException {
         System.out.println("Reading in data from CSV");
         ArrayList<String> messages = new ArrayList<>();
@@ -76,6 +87,12 @@ public class TwitterLDA {
         return messages;
     }
 
+    /**
+     *
+     * @param data
+     * @param dataFile
+     * @throws IOException
+     */
     public void saveMessages(ArrayList<String> data, String dataFile) throws IOException {
         System.out.println("Saving parsed CSV data");
         FileWriter fout = new FileWriter(dataFile);
@@ -96,6 +113,12 @@ public class TwitterLDA {
         }
     }
 
+    /**
+     *
+     * @param LDADirectory
+     * @param dataFileName
+     * @return
+     */
     public LDACmdOption setLDAOptions(String LDADirectory, String dataFileName) {
         System.out.println("Set LDA CMD Options");
         LDACmdOption options = new LDACmdOption();
@@ -112,6 +135,10 @@ public class TwitterLDA {
         return options;
     }
 
+    /**
+     *
+     * @param ldaOption
+     */
     public void performInference(LDACmdOption ldaOption) {
         System.out.println("Do inference for previously unseen (new) data using a previously estimated LDA model");
         Inferencer inferencer = new Inferencer();
@@ -119,6 +146,10 @@ public class TwitterLDA {
         inferencer.inference();
     }
 
+    /**
+     *
+     * @param ldaOption
+     */
     public void performEstimation(LDACmdOption ldaOption) {
         System.out.println("Performing Estimation");
         //LDA Create new model with settings
@@ -129,6 +160,15 @@ public class TwitterLDA {
         estimator.estimate();
     }
 
+    /**
+     *
+     * @param twordsFile
+     * @param rawInputFile
+     * @param userOutput
+     * @param twordHitOutput
+     * @throws FileNotFoundException
+     * @throws IOException
+     */
     public void evaluateUsers(String twordsFile, String rawInputFile, String userOutput, String twordHitOutput) throws FileNotFoundException, IOException {
         System.out.println("Starting user evaluation");
         //Total tword array and values for twords
@@ -273,6 +313,14 @@ public class TwitterLDA {
         }
     }
 
+    /**
+     *
+     * @param topics
+     * @param labels
+     * @param userOutput
+     * @param labeledUserOutput
+     * @throws FileNotFoundException
+     */
     public void labelTopics(String[] topics, String[] labels, String userOutput, String labeledUserOutput) throws FileNotFoundException {
         System.out.println("Producing labeled topic documents.");
         System.out.println("Producing labeled User Topics document.");
