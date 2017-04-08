@@ -25,9 +25,15 @@ import wis4700.jgibblda.LDACmdOption;
  */
 public class TwitterLDA {
 
-    final static int NUM_TWORDS = 200;
-    final static int NUM_TOPICS = 100;
-    static int totalTwords = NUM_TWORDS * NUM_TOPICS;
+    private final int NUM_TWORDS;
+    private final int NUM_TOPICS;
+    private final int totalTwords;
+
+    public TwitterLDA(int twords, int topics) {
+        NUM_TWORDS = twords;
+        NUM_TOPICS = topics;
+        totalTwords = NUM_TWORDS * NUM_TOPICS;
+    }
 
     public ArrayList<String> readCSV(String rawInputFile) throws FileNotFoundException {
         System.out.println("Reading in data from CSV");
@@ -123,7 +129,7 @@ public class TwitterLDA {
         estimator.estimate();
     }
 
-    public static void evaluateUsers(String twordsFile, String rawInputFile, String userOutput, String twordHitOutput) throws FileNotFoundException, IOException {
+    public void evaluateUsers(String twordsFile, String rawInputFile, String userOutput, String twordHitOutput) throws FileNotFoundException, IOException {
         System.out.println("Starting user evaluation");
         //Total tword array and values for twords
         String[] twords = new String[totalTwords];
@@ -266,4 +272,50 @@ public class TwitterLDA {
             System.out.println(e);
         }
     }
+
+    public void labelTopics() throws FileNotFoundException {
+        //Topics: 1, 5, 10, 18, 19, 26, 28, 33, 38, 46, 55, 61, 71, 84, 87, 89
+        System.out.println("Producing labeled topic documents.");
+        System.out.println("Producing labeled User Topics document.");
+        String[] topics = {"1", "5", "10", "18", "19", "26", "28", "33", "38", "46", "55", "61", "71", "84", "87", "89"};
+        String[] labels = {"Tennis", "Rugby", "News", "Family", "Spurs", "FPL", "Love", "LFC", "UK Politics",
+            "American Politics", "Education", "Twitter", "Driving", "Entertainment", "Food and Drink", "Music and Music Videos"};
+        FileReader userTopicReader = new FileReader(userOutput);
+        String splitVal = ",";
+        try (BufferedReader userTopicBuffReader = new BufferedReader(userTopicReader)) {
+            FileWriter userTopicWriter = new FileWriter(labeledUserOutput);
+            try (BufferedWriter userTopicBuffWriter = new BufferedWriter(userTopicWriter)) {
+                String line = "";
+                int topicCounter = 0;
+                userTopicBuffWriter.write("Username,[");
+                for (int i = 0; i < labels.length; i++) {
+                    userTopicBuffWriter.write(labels[i] + ",");
+                }
+                userTopicBuffWriter.write("]\n");
+                Boolean first = true;
+                while ((line = userTopicBuffReader.readLine()) != null) {
+                    String[] splitLine = line.split(splitVal);
+                    if (splitLine.length <= 1) {
+                        if (!first) {
+                            userTopicBuffWriter.write("\n");
+                        }
+                        userTopicBuffWriter.write(line + ",[");
+                        topicCounter = 0;
+                        first = false;
+                    } else if (splitLine[0].equals(topics[topicCounter])) {
+                        userTopicBuffWriter.write(splitLine[1] + ",");
+                        if (!((topicCounter + 1) >= topics.length)) {
+                            topicCounter++;
+                        } else {
+                            userTopicBuffWriter.write("]");
+                        }
+                    }
+                }
+                userTopicBuffWriter.flush();
+            }
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+    }
+
 }
