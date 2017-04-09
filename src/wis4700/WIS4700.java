@@ -135,7 +135,18 @@ public class WIS4700 {
                         break;
                     }
                     case 8: {
-
+                        System.out.println("Runnning demo with default options...");
+                        String home = System.getProperty("user.home"); 
+                        System.out.println("Please copy the demo directory from the repository to: " + home);
+                        analyzer.saveMessages(analyzer.readCSV(home + "/demo/demo.csv"), home + "/demo/processed_demo.csv");
+                        LDACmdOption options = analyzer.setLDAOptions(home + "/demo/", "/processed_demo.csv");
+                        analyzer.performEstimation(options);
+                        analyzer.performInference(options);
+                        analyzer.evaluateUsers(home + "/demo/processed_demo.csv.model-final.twords", home + "/demo/demo.csv", home + "/demo/userEvalReport.txt", home + "/demo/userHitReport.txt");
+                        String[] topics = {"1", "2", "3"};
+                        String[] labels = {"topic1", "topic2", "topic3"};
+                        analyzer.labelTopics(topics, labels, home + "/demo/userEvalReport.txt", home + "/demo/labeledUserEvalReport.txt");
+                        run = false;
                         break;
                     }
                     default:

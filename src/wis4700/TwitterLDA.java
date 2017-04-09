@@ -157,7 +157,7 @@ public class TwitterLDA {
         options.dir = LDADirectory;
         options.modelName = "model-final";
         //ldaOption.niters = 10;
-        options.dfile = "../" + dataFileName;
+        options.dfile = dataFileName;
         return options;
     }
 
