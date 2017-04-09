@@ -135,6 +135,7 @@ public class WIS4700 {
                         break;
                     }
                     case 8: {
+                        //You must make sure that the demo folder and demo file are in the correct place for this to work.
                         System.out.println("Runnning demo with default options...");
                         String home = System.getProperty("user.home"); 
                         System.out.println("Please copy the demo directory from the repository to: " + home);
