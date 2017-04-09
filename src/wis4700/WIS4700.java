@@ -4,7 +4,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
-import java.util.concurrent.TimeUnit;
 import wis4700.jgibblda.LDACmdOption;
 
 /**
@@ -114,8 +113,6 @@ public class WIS4700 {
                         dataFile = scanner.nextLine().trim();
                         ArrayList<String> data = analyzer.readCSV(rawInputFile);
                         analyzer.saveMessages(data, dataFile);
-                        //Pause for flush to disk
-                        TimeUnit.SECONDS.sleep(5);
                         LDACmdOption options = analyzer.setLDAOptions(LDADirectory, dataFile);
                         analyzer.performEstimation(options);
                         analyzer.performInference(options);
@@ -153,7 +150,7 @@ public class WIS4700 {
                     default:
                         break;
                 }
-            } catch (IOException | InterruptedException e) {
+            } catch (IOException e) {
                 System.out.println(e);
             }
         }
